@@ -1,0 +1,46 @@
+name: Property Alert Bot
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours
+  workflow_dispatch:          # lets you trigger manually from GitHub UI
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore seen listings database
+        uses: actions/cache@v4
+        with:
+          path: seen_listings.db
+          key: seen-listings-db-${{ github.run_id }}
+          restore-keys: |
+            seen-listings-db-
+
+      - name: Run bot
+        env:
+          DOMAIN_CLIENT_ID:     ${{ secrets.DOMAIN_CLIENT_ID }}
+          DOMAIN_CLIENT_SECRET: ${{ secrets.DOMAIN_CLIENT_SECRET }}
+          GMAIL_ADDRESS:        ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD:   ${{ secrets.GMAIL_APP_PASSWORD }}
+          ALERT_EMAIL:          ${{ secrets.ALERT_EMAIL }}
+        run: python bot.py
+
+      - name: Save seen listings database
+        uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: seen_listings.db
+          key: seen-listings-db-${{ github.run_id }}
