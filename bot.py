@@ -21,7 +21,7 @@ CONFIG = {
     "min_yield_pct": 5.5,
     "property_type": "house",
     "listing_type": "established",
-    "alert_email": os.environ.get("ALERT_EMAIL", "t.nantharath@gmail.com"),
+    "alert_email": os.environ["ALERT_EMAIL"],
     "suburbs": {
         "Kirwan QLD 4817":              560,
         "Annandale QLD 4814":           580,
